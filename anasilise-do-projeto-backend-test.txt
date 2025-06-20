@@ -1,0 +1,62 @@
+============= Apontamentos de Erros e melhorias =============
+
+1. Segurança
+
+Configuração CORS muito ampla (*).
+
+Talvez seja necessária usar rate-limiting em endpoints sensíveis.
+
+Uma configuração CORS aberta a qualquer origem criam brechas para abusos e ataques DDoS. Isso permite que qualquer domínio consuma 
+livremente a API e que atacantes realizem requisições em massa sem restrição. Então o ideal é restringir o CORS apenas às origens 
+confiáveis e talvez considerar aplicar throttle (limitar a frequência de requisições) em autenticação e endpoints críticos. Dessa 
+forma, limitamos a taxa de requisições, protegendo a infraestrutura e melhorando a segurança contra tentativas de exploração e 
+sobrecarga mal-intencionadas.
+
+2. Nomes e Consistência de Arquivos
+
+Nomenclatura inconsistente (classes com nomes minúsculos).
+
+Possibilidade de falhas no autoload PSR-4.
+
+Exemplo de erro: app/UseCases/User/show.php
+
+Para que o autoloading do composer funcione corretamente é importante usar PascalCase pois dessa forma respeita 
+o PSR-4 para o autoloading. No caso, do exemplo do erro apresentado, pode causar erro para o autoload pois o nome do arquivo e da classe não seguem 
+o padrão esperado.
+
+3. Separação de Provedores
+
+Provedores de integração misturados aos Service Providers do Laravel, comprometendo a organização.
+
+Parece misturar provedores externos (como AccountProvider, CardProvider) com os Service Providers nativos do Laravel 
+(como AppServiceProvider) dificulta a leitura e a manutenção da estrutura do projeto. O ideal é mantê-los em diretórios separados, 
+como app/Integrations/Providers, para que novos desenvolvedores consigam entender rapidamente onde estão os componentes de 
+configuração da aplicação e onde estão os pontos de integração externa. Isso também torna mais claro o uso do autoload do Composer 
+e da injeção de dependências, além de evitar confusões na hora de registrar bindings no container de serviços do Laravel.
+
+4. Estrutura e Organiza­ção das Rotas
+
+Centralização de todas as rotas em um único arquivo api.php acredito que pode prejudicar a legibilidade e manutenção.
+
+Em sistemas maiores, com múltiplos contextos de negócio (CRUD de usuários, cartões, contas, etc.), isso torna a navegação e 
+entendimento mais complexos para o time. Nesse caso, seria separar as rotas por contexto ou recurso e realizar a importação 
+no arquivo de rotas principal.
+
+5. Variáveis de Ambiente
+
+O .env.example possivelmente contendo segredos ou chaves desnecessárias.
+
+O .env.example deve conter apenas chaves vazias e nomes claros para que novos
+desenvolvedores entendam exatamente o que precisa ser configurado localmente. Isso previne que
+segredos vazem no repositório, aumenta a segurança e funciona como um mapa de setup, tornando o
+onboarding mais simples e padronizado.
+
+6. Performance e Escalabilidade
+
+Introduzir cache para listagens e dados acessados frequentemente.
+Usar eager loading para evitar N+1 queries.
+Criar endpoints batch para reduzir chamadas repetidas ao BaaS.
+
+7. Testes
+
+Melhorar a utilização de Factories e Seeders para dados de teste realistas.
